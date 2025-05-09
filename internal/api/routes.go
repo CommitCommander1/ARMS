@@ -1,8 +1,10 @@
 package api
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/mattn/go-sqlite3"
 	"log"
 	"net/http"
 	"strconv"
@@ -18,6 +20,7 @@ type Harvester struct {
 
 var HarvesterList []Harvester
 var HarvesterMutex sync.Mutex
+var DB *sql.DB
 
 func HarvesterGet(w http.ResponseWriter, req *http.Request) {
 	HarvesterMutex.Lock()
@@ -47,6 +50,14 @@ func HarvesterPost(w http.ResponseWriter, req *http.Request) {
 	HarvesterMutex.Lock()
 	newHarvester.ID = len(HarvesterList) + 1 // Assign a new ID
 	HarvesterList = append(HarvesterList, newHarvester)
+	sql_query := fmt.Sprintf(`
+	INSERT INTO Harversters (ID, Name, X, Y)
+	Values (%v,%v,%v,%v)
+	`, newHarvester.ID, newHarvester.Name, newHarvester.X, newHarvester.Y)
+	_, err := DB.Exec(sql_query)
+	if err != nil {
+		log.Fatalln("Error inserting into table: %v, %s\n")
+	}
 	HarvesterMutex.Unlock()
 
 	w.WriteHeader(http.StatusCreated)

@@ -1,12 +1,11 @@
 package main
 
 import (
-	"fmt"
-
 	"example.com/arms/internal/api"
+	"log"
 )
 
 func main() {
-	fmt.Println("TEST MAIN")
+	log.Println("TEST MAIN")
 	api.StartAPIServer()
 }
